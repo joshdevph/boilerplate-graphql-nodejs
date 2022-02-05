@@ -18,57 +18,57 @@ const app = express();
 // ! Middleware express
 app.use(cookieParser());
 app.use(
-  session({
-    name: process.env.SESSION_NAME,
-    secret: process.env.APP_SECRET,
-    store: new SequelizeStore({
-      db: db.sequelize,
-    }),
-    resave: false, // we support the touch method so per that express-session docs this should be set to false
-    saveUninitialized: false,
-    cookie: {
-      secure: process.env.NODE_ENV == "production",
-      maxAge: 24 * 60 * 60 * 1000,
-      httpOnly: false,
-    },
-  })
+    session({
+        name: process.env.SESSION_NAME,
+        secret: process.env.APP_SECRET,
+        store: new SequelizeStore({
+            db: db.sequelize,
+        }),
+        resave: false,
+        saveUninitialized: false,
+        cookie: {
+            secure: process.env.NODE_ENV == "production",
+            maxAge: 24 * 60 * 60 * 1000,
+            httpOnly: false,
+        },
+    })
 );
 
 app.use(
-  cors({
-    origin: ["http://localhost:4040"],
-    credentials: true,
-  })
+    cors({
+        origin: ["http://localhost:4040"],
+        credentials: true,
+    })
 );
 
 // ! Apollo server creation
 const server = new ApolloServer({
-  typeDefs,
-  resolvers,
-  introspection: true,
-  cors: true,
-  context: async ({ req, res, connection }) => {
-    if (req) {
-      return {
-        db,
-        res,
-        session: req.session,
-        me: req.session,
-        secret: process.env.APP_SECRET,
-      };
-    }
-  },
+    typeDefs,
+    resolvers,
+    introspection: true,
+    cors: true,
+    context: async({ req, res, connection }) => {
+        if (req) {
+            return {
+                db,
+                res,
+                session: req.session,
+                me: req.session,
+                secret: process.env.APP_SECRET,
+            };
+        }
+    },
 });
 
 server.applyMiddleware({ app, path: "/graphql", cors: false });
 
 const httpServer = http.createServer(app);
 
-db.sequelize.sync().then(async () => {
-  console.log(`database synced!`);
+db.sequelize.sync().then(async() => {
+    console.log(`Done Task ------> Database update to latest!`);
 });
 httpServer.listen({ port: process.env.PORT }, () => {
-  console.log(
-    `Apollo server ready at http://localhost:${process.env.PORT}/graphql`
-  );
+    console.log(
+        `Apollo server ready at http://localhost:${process.env.PORT}/graphql`
+    );
 });

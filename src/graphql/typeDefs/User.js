@@ -1,6 +1,6 @@
 import { gql } from 'apollo-server-express';
 
-export default gql`
+export default gql `
   # -----------------------------------------------
   # TYPES
   # -----------------------------------------------
@@ -9,6 +9,7 @@ export default gql`
     name: String!
     username: String!
     email: String!
+    role: String
   }
 
   # -----------------------------------------------
@@ -18,6 +19,7 @@ export default gql`
     me: User
     users: [User!]
     isLoggedIn: Boolean!
+    alladminuser: [User!]
   }
 
   # -----------------------------------------------
@@ -37,5 +39,7 @@ export default gql`
     username: String!
     email: String!
     password: String!
+    role: String
+    userid: Int
   }
 `;
