@@ -33,7 +33,11 @@ export default {
             if (session.user) {
                 if (session.user.id) {
                     console.log(session);
-                    const users = await db.user.findAll();
+                    const users = await db.user.findAll({
+                        where: {
+                            userid: session.user.id
+                        }
+                    });
                     if (!users) {
                         throw new Error('No users found');
                     }
