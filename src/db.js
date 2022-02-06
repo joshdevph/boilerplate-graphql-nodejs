@@ -13,6 +13,12 @@ const sequelize = new Sequelize(
         host: process.env.POSTGRES_HOST,
         port: process.env.POSTGRES_PORT,
         dialect: 'postgres',
+        dialectOptions: {
+            ssl: {
+                require: false,
+                rejectUnauthorized: false
+            }
+        },
     }
 );
 
