@@ -10,6 +10,7 @@
         "test": "env-cmd ./config/test.env jest --watch --runInBand"
     },
     "dependencies": {
+        "@graphql-tools/schema": "^8.3.1",
         "apollo-server": "^2.9.6",
         "apollo-server-express": "^2.9.16",
         "bcryptjs": "^2.4.3",
@@ -23,11 +24,13 @@
         "express-session": "^1.17.1",
         "graphql": "^14.5.8",
         "graphql-resolvers": "^0.4.2",
+        "graphql-subscriptions": "^2.0.0",
         "jsonwebtoken": "^8.5.1",
         "lodash": "^4.17.15",
         "moment": "^2.25.1",
         "pg": "8.6.0",
-        "sequelize": "^5.21.3"
+        "sequelize": "^5.21.3",
+        "subscriptions-transport-ws": "^0.11.0"
     },
     "devDependencies": {
         "@babel/preset-env": "^7.6.3",

@@ -2,10 +2,16 @@ import { UserInputError } from 'apollo-server';
 import { Op } from 'sequelize';
 import { isAuthenticated, isSessionAuthenticated } from './authorization';
 import { combineResolvers } from 'graphql-resolvers';
-import sequelize from 'sequelize';
-import { user } from 'pg/lib/defaults';
+import { PubSub } from 'graphql-subscriptions';
 
+const pubsub = new PubSub();
+const NEW_USER_ADDED = "NEW_USER_ADDED";
 export default {
+    Subscription: {
+        newRegistration: {
+            subscribe: (parent, args, { session }) => pubsub.asyncIterator([NEW_USER_ADDED]),
+        },
+    },
     Query: {
         // ! This query is for the logged in user
         isLoggedIn: async(root, args, { session }, info) => {
@@ -69,16 +75,9 @@ export default {
             const user = await db.user.create({
                 ...input,
             });
-
-            /* --------------------- Need to check this one -----------------------------*/
-            // session.user = {
-            //     id: user.dataValues.id,
-            //     username: user.dataValues.username,
-            //     email: user.dataValues.email,
-            //     role: user.dataValues.role
-            // };
-            /* --------------------- Need to check this one -----------------------------*/
-
+            pubsub.publish(NEW_USER_ADDED, {
+                newRegistration: user
+            })
             return user;
         },
         login: async(root, { username, password }, { db, session }, info) => {
@@ -109,5 +108,5 @@ export default {
             res.clearCookie(process.env.SESSION_NAME);
             return loggedOutUser;
         },
-    },
+    }
 };
