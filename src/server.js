@@ -72,7 +72,7 @@ const server = new ApolloServer({
                 db,
                 res,
                 session: req.session,
-                me: req.session,
+                me: req.session.user,
                 secret: process.env.APP_SECRET,
             };
         }

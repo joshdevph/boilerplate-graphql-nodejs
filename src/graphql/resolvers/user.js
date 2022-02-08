@@ -35,10 +35,10 @@ export default {
                 return users;
             }
         ),
+        // ! This query grabs all the users under the admin
         alladminuser: async(root, args, { db, session }, info) => {
             if (session.user) {
                 if (session.user.id) {
-                    console.log(session);
                     const users = await db.user.findAll({
                         where: {
                             userid: session.user.id
@@ -52,7 +52,32 @@ export default {
             } else {
                 throw new Error('No session found');
             }
+        },
+        // ! This query grabs all the franchiseuser under the franchiser
+        allFranchiseUser: async(root, { id }, { db }, info) => {
+            const users = await db.user.findAll({
+                where: {
+                    userid: id
+                }
+            });
+            if (!users) {
+                throw new Error('No users found');
+            }
+            return users;
+        },
+        // ! This query grabs specific franchise details
+        franchiseUser: async(root, { id }, { db }, info) => {
+            const users = await db.user.findOne({
+                where: {
+                    id: id
+                }
+            });
+            if (!users) {
+                throw new Error('No users found');
+            }
+            return users;
         }
+
     },
     Mutation: {
         // ! This mutation creates new user
@@ -107,6 +132,38 @@ export default {
             await session.destroy();
             res.clearCookie(process.env.SESSION_NAME);
             return loggedOutUser;
+        },
+
+        // ! This mutation creates new franchiser
+        createFranchiser: async(root, { input }, { db, session }) => {
+            const { username, email } = input;
+            const userExists = await db.user.findOne({
+                where: {
+                    [Op.or]: [{ email }, { username }],
+                },
+            });
+            if (userExists) {
+                throw new Error('A user with this email or username already exists');
+            }
+            if (session.user) {
+                input.userid = session.user.id
+                if (session.user.role == "admin" || session.user.role == "superadmin") {
+                    input.role = 'franchiser'
+                } else if (session.user.role == "franchiser") {
+                    input.role = 'franchiseuser'
+                } else {
+                    throw new UserInputError('Your Role is not allowed to Create Franchiser');
+                }
+            } else {
+                throw new UserInputError('Unauthorized User');
+            }
+            const user = await db.user.create({
+                ...input,
+            });
+            pubsub.publish(NEW_USER_ADDED, {
+                newRegistration: user
+            })
+            return user;
         },
     }
 };

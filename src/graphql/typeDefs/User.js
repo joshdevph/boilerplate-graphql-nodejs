@@ -17,9 +17,13 @@ export default gql `
   # -----------------------------------------------
   extend type Query {
     me: User
-    users: [User!]
     isLoggedIn: Boolean!
+    # This Query is for admin user
+    users: [User!]
     alladminuser: [User!]
+    # This Query is for franchise user
+    allFranchiseUser(id: Int!): [User!]
+    franchiseUser(id: Int!): User!
   }
 
   # -----------------------------------------------
@@ -29,6 +33,7 @@ export default gql `
     createUser(input: CreateUserInput!): User!
     login(username: String!, password: String!): User!
     logout: User!
+    createFranchiser(input: CreateUserInput!): User!
   }
 
     # -----------------------------------------------
