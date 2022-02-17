@@ -22,7 +22,7 @@ export default gql `
     users: [User!]
     alladminuser: [User!]
     # This Query is for franchise user
-    allFranchiseUser(id: Int!): [User!]
+    allFranchiseUserOrFranchiser(id: Int!): [User!]
     franchiseUser(id: Int!): User!
   }
 

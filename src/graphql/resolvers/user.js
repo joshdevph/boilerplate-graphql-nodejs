@@ -37,7 +37,7 @@ export default {
         ),
         // ! This query grabs all the users under the admin
         alladminuser: async(root, args, { db, session }, info) => {
-            if (session.user) {
+            if (session.user && session.user.role == "admin") {
                 if (session.user.id) {
                     const users = await db.user.findAll({
                         where: {
@@ -54,12 +54,22 @@ export default {
             }
         },
         // ! This query grabs all the franchiseuser under the franchiser
-        allFranchiseUser: async(root, { id }, { db }, info) => {
-            const users = await db.user.findAll({
-                where: {
-                    userid: id
-                }
-            });
+        allFranchiseUserOrFranchiser: async(root, { id }, { db }, info) => {
+            let users;
+            if(id == 0){
+                users = await db.user.findAll({
+                    where: {
+                        role: 'franchiser'
+                    }
+                });
+            }else{
+                users = await db.user.findAll({
+                    where: {
+                        userid: id
+                    }
+                });
+            }
+
             if (!users) {
                 throw new Error('No users found');
             }
