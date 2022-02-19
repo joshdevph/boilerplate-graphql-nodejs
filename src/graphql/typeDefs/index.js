@@ -1,6 +1,9 @@
 import { gql } from 'apollo-server-express';
 
 import userSchema from './User';
+import productimageSchema from './ProductImage';
+import productSchema from './Product';
+import categorySchema  from './Category';
 
 const linkedSchema = gql `
   type Query {
@@ -14,4 +17,10 @@ const linkedSchema = gql `
   }
 `;
 
-export default [linkedSchema, userSchema];
+export default [
+  linkedSchema, 
+  userSchema, 
+  productimageSchema, 
+  productSchema,
+  categorySchema
+];
