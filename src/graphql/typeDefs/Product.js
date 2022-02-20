@@ -6,6 +6,8 @@ export default gql `
   # -----------------------------------------------
   extend type Mutation {
     createProduct(input: CreateProductInput): Product!
+    updateProduct(input: CreateProductInput): Boolean!
+    deleteProduct(productid: Int!): Boolean
   }
 
   # -----------------------------------------------
@@ -14,6 +16,8 @@ export default gql `
   extend type Query {
     getAllPhoto: [Photo]
     getPhoto(img_id: String!): String
+    getAllProduct: [Product]
+    getProduct(productid: Int!): Product
   }
 
   # -----------------------------------------------
@@ -24,6 +28,7 @@ export default gql `
     categoryid: Int!
     imageid: String!
     price: Int!
+    productid: Int
   }
   type Product{
     product_name: String!
@@ -31,5 +36,14 @@ export default gql `
     imageid: String!
     price: Int!
     userid: Int
+  }
+
+  scalar JSON
+
+  type Product{
+    id: Int
+    product_name: String
+    categoryid: Int
+    imageid: String
   }
 `;
