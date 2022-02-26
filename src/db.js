@@ -14,10 +14,10 @@ const sequelize = new Sequelize(
         port: process.env.POSTGRES_PORT,
         dialect: 'postgres',
         dialectOptions: {
-            ssl: {
-                require: false,
-                rejectUnauthorized: false
-            }
+            // ssl: {
+            //     require: false,
+            //     rejectUnauthorized: false
+            // }
         },
     }
 );
