@@ -157,9 +157,9 @@ export default {
             }
             if (session.user) {
                 input.userid = session.user.id
-                if (session.user.role == "admin" || session.user.role == "superadmin") {
+                if (session.user.role === "admin" || session.user.role === "superadmin") {
                     input.role = 'franchiser'
-                } else if (session.user.role == "franchiser") {
+                } else if (session.user.role === "franchiser") {
                     input.role = 'franchiseuser'
                 } else {
                     throw new UserInputError('Your Role is not allowed to Create Franchiser');
