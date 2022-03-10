@@ -57,6 +57,11 @@ export default (sequelize, DataTypes) => {
         }
     });
 
+    User.beforeBulkUpdate(async(user) => {
+        if (user.password) {
+            user.password = await user.generatePasswordHash();
+        }
+    });
     User.prototype.updatePasswordHash = async function(password) {
         const saltRounds = 10;
         return await bcrypt.hash(password, saltRounds);

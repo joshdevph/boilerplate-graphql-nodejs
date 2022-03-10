@@ -23,7 +23,13 @@ export default gql `
     alladminuser: [User!]
     # This Query is for franchise user
     allFranchiseUserOrFranchiser(id: Int!): [User!]
-    franchiseUser(id: Int!): User!
+    franchiseeProfile(id: Int!): User!
+    franchiseCount: Int!
+    adminCount: Int!
+    kitchenOwnerCount: Int!
+    allKitchenOwnerPerFranchise(id: Int!): [User!]
+    kitchenOwnerProfile(id: Int!): User!
+    franchiseUserProfile(id: Int!): User!
   }
 
   # -----------------------------------------------
@@ -34,6 +40,8 @@ export default gql `
     login(username: String!, password: String!): User!
     logout: User!
     createFranchiser(input: CreateUserInput!): User!
+    createKitchenOwner(input: CreateUserInput!): User!
+    updateUser(id:Int!, input: UpdateUserInput): Boolean!
   }
 
     # -----------------------------------------------
@@ -51,6 +59,15 @@ export default gql `
     username: String!
     email: String!
     password: String!
+    role: String
+    userid: Int
+  }
+
+  input UpdateUserInput {
+    name: String
+    username: String
+    email: String
+    password: String
     role: String
     userid: Int
   }

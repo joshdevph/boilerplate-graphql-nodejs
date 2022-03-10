@@ -1,5 +1,5 @@
 import { UserInputError } from 'apollo-server';
-import { Op } from 'sequelize';
+import { Op, or } from 'sequelize';
 import { isAuthenticated, isSessionAuthenticated } from './authorization';
 import { combineResolvers } from 'graphql-resolvers';
 import { PubSub } from 'graphql-subscriptions';
@@ -76,17 +76,96 @@ export default {
             return users;
         },
         // ! This query grabs specific franchise details
-        franchiseUser: async(root, { id }, { db }, info) => {
+        franchiseeProfile: async(root, { id }, { db }, info) => {
             const users = await db.user.findOne({
                 where: {
-                    id: id
+                    id: id,
+                    role: "franchiser"
                 }
             });
             if (!users) {
                 throw new Error('No users found');
             }
             return users;
-        }
+        },
+        franchiseCount:  async (root, args, {db},) => {
+            let franchiseCount;
+            franchiseCount = await db.user.count({
+                where: {
+                    role:{
+                        [Op.or]:['adminuser', 'admin']
+                    }
+                }
+            });
+            return franchiseCount
+        },
+        adminCount:  async (root, args, {db},) => {
+            let adminCount;
+            adminCount = await db.user.count({
+                where: {
+                    role:{
+                        [Op.or]:['adminuser', 'admin']
+                    }
+                }
+            });
+            return adminCount
+        },
+        kitchenOwnerCount:  async (root, args, {db},) => {
+            let kitchenownerCount;
+            kitchenownerCount = await db.user.count({
+                where: {
+                    role: 'kitchenowner'
+                }
+            });
+            return kitchenownerCount
+        },
+        allKitchenOwnerPerFranchise: async(root, { id }, { db }, info) => {
+            let users;
+            if(id == 0){
+                users = await db.user.findAll({
+                    where: {
+                        role: 'kitchenowner'
+                    }
+                });
+            }else{
+                users = await db.user.findAll({
+                    where: {
+                        userid: id
+                    }
+                });
+            }
+
+            if (!users) {
+                throw new Error('No users found');
+            }
+            return users;
+        },
+        kitchenOwnerProfile: async(root, { id }, { db }, info) => {
+            const users = await db.user.findOne({
+                where: {
+                    [Op.and]: [
+                        {id : id},
+                        {role: "kitchenowner"}
+                    ]
+                }
+            });
+            if (!users) {
+                throw new Error('No users found');
+            }
+            return users;
+        },
+        franchiseUserProfile: async(root, { id }, { db }, info) => {
+            const users = await db.user.findOne({
+                where: {
+                        id : id,
+                        role: "franchiseuser"
+                }
+            });
+            if (!users) {
+                throw new Error('No users found');
+            }
+            return users;
+        },
 
     },
     Mutation: {
@@ -143,7 +222,6 @@ export default {
             res.clearCookie(process.env.SESSION_NAME);
             return loggedOutUser;
         },
-
         // ! This mutation creates new franchiser
         createFranchiser: async(root, { input }, { db, session }) => {
             const { username, email } = input;
@@ -174,6 +252,54 @@ export default {
                 newRegistration: user
             })
             return user;
+        },
+        createKitchenOwner: async(root, { input }, { db, session }) => {
+            const { username, email } = input;
+            const userExists = await db.user.findOne({
+                where: {
+                    [Op.or]: [{ email }, { username }],
+                },
+            });
+            if (userExists) {
+                throw new Error('A user with this email or username already exists');
+            }
+            if (session.user) {
+                if(session.user.role === "admin" || session.user.role === "adminuser"){
+                    if(!input.userid){
+                        throw new UserInputError('Please provide a Franchisee');
+                    }
+                }else{
+                    input.userid = session.user.id
+                }
+                if (session.user.role === "admin" || session.user.role === "adminuser" || session.user.role === "franchiser") {
+                    input.role = 'kitchenowner'
+                } else {
+                    throw new UserInputError('Your Role is not allowed to Create Franchiser');
+                }
+            } else {
+                throw new UserInputError('Unauthorized User');
+            }
+            const user = await db.user.create({
+                ...input,
+            });
+            pubsub.publish(NEW_USER_ADDED, {
+                newRegistration: user
+            })
+            return user;
+        },
+        updateUser: async(root, { id, input }, { db, session }) => {
+            const user = await db.user.findOne({
+                where: { id },
+            });
+            input.password = await user.updatePasswordHash(input.password)
+            const users = await db.user.update({
+                ...input,
+            },{
+                where:{
+                    id: id
+                }
+            });
+            return !!users
         },
     }
 };

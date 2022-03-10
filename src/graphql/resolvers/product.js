@@ -42,7 +42,6 @@ export default {
             }
             return product;
         },
-
         getProduct: async (_, { productid }, {db, session}) => {
             let product;
             if(session.user){
@@ -53,6 +52,13 @@ export default {
                     {raw: true},
                     {where: {id : productid}}
                 )
+            }
+            return product;
+        },
+        getAllProductsCount: async (_, __, {db, session}) => {
+            let product;
+            if(session.user){
+                product = await db.product.count()
             }
             return product;
         },

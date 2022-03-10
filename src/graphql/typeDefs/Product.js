@@ -18,6 +18,7 @@ export default gql `
     getPhoto(img_id: String!): String
     getAllProduct: [Product]
     getProduct(productid: Int!): Product
+    getAllProductsCount: Int!
   }
 
   # -----------------------------------------------
